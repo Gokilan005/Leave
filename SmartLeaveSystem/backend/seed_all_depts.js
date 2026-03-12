@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const User = require('./models/User');
 require('dotenv').config();
 
-const departments = ['CSBS', 'CSE', 'IT'];
+const departments = ['CSBS', 'CSE', 'IT', 'AIDS', 'AIML'];
 const defaultPassword = 'password123';
 
 console.log("MONGODB_URI from .env:", process.env.MONGODB_URI ? "Found" : "Missing");

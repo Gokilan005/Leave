@@ -253,12 +253,17 @@ const Profile = () => {
                                 <div>
                                     <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Department</p>
                                     {isEditing ? (
-                                        <input
-                                            type="text"
+                                        <select
                                             value={editForm.department}
                                             onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
-                                            className="w-full bg-white border border-slate-300 text-slate-800 rounded px-2 py-1 outline-none focus:border-blue-500 transition-colors uppercase"
-                                        />
+                                            className="w-full bg-white border border-slate-300 text-slate-800 rounded px-2 py-1 outline-none focus:border-blue-500 transition-colors"
+                                        >
+                                            <option value="CSBS">CSBS</option>
+                                            <option value="CSE">CSE</option>
+                                            <option value="IT">IT</option>
+                                            <option value="AIDS">AIDS</option>
+                                            <option value="AIML">AIML</option>
+                                        </select>
                                     ) : (
                                         <p className="text-slate-800 font-medium uppercase">{user.department}</p>
                                     )}

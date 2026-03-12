@@ -51,7 +51,7 @@ const Register = () => {
                         <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 mb-4 shadow-lg shadow-blue-600/20">
                             <UserPlus className="w-8 h-8 text-white" />
                         </div>
-                        <h2 className="text-3xl font-bold text-white uppercase italic tracking-tight">Create Account</h2>
+                        <h2 className="text-3xl font-bold text-white uppercase italic tracking-tight">Create Account (Updated)</h2>
                         <p className="text-slate-400 mt-2 text-sm uppercase font-bold tracking-widest text-blue-500">
                             Student Registration
                         </p>
@@ -146,6 +146,8 @@ const Register = () => {
                                         <option value="CSBS">CSBS</option>
                                         <option value="CSE">CSE</option>
                                         <option value="IT">IT</option>
+                                        <option value="AIDS">AIDS</option>
+                                        <option value="AIML">AIML</option>
                                     </select>
                                 </div>
                             </div>
