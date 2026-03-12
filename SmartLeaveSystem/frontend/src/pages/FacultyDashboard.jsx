@@ -9,13 +9,16 @@ import {
     XCircle,
     Clock,
     AlertCircle,
-    User,
+    User as UserIcon,
     LogOut,
     Calendar,
     Search,
     Filter,
     ChevronRight,
-    Bell
+    Bell,
+    ShieldCheck,
+    Check,
+    X
 } from 'lucide-react';
 import API_BASE_URL from '../config';
 import { Link } from 'react-router-dom';
@@ -62,7 +65,7 @@ const FacultyDashboard = () => {
     const fetchLeaves = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.get(`${API_BASE_URL}/api/leaves/faculty`, {
+            const { data } = await axios.get(`${API_BASE_URL}/api/leaves`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             
@@ -86,7 +89,7 @@ const FacultyDashboard = () => {
     const handleStatusUpdate = async (id, status) => {
         try {
             const token = Cookies.get('token');
-            await axios.put(`${API_BASE_URL}/api/leaves/status/${id}`, { status }, {
+            await axios.put(`${API_BASE_URL}/api/leaves/${id}/status`, { status }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Socket will update the UI automatically but we can also optimistically update

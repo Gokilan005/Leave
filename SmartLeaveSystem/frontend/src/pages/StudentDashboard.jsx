@@ -11,7 +11,7 @@ import {
     AlertCircle,
     Calendar,
     Send,
-    User,
+    User as UserIcon,
     LogOut,
     Plus,
     X,
@@ -43,7 +43,7 @@ const StudentDashboard = () => {
     const fetchLeaves = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.get(`${API_BASE_URL}/api/leaves/student`, {
+            const { data } = await axios.get(`${API_BASE_URL}/api/leaves`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLeaves(Array.isArray(data) ? data : []);

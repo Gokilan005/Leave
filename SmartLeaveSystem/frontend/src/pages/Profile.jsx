@@ -38,7 +38,7 @@ const Profile = () => {
     const handleSave = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.put(`${API_BASE_URL}/api/auth/profile`, editForm, {
+            const { data } = await axios.put(`${API_BASE_URL}/api/auth/update`, editForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUser(data);
@@ -67,7 +67,7 @@ const Profile = () => {
         setIsUploading(true);
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.post(`${API_BASE_URL}/api/auth/profile-image`, formData, {
+            const { data } = await axios.post(`${API_BASE_URL}/api/auth/upload-profile-picture`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
