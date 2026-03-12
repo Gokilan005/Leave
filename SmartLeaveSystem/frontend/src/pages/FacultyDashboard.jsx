@@ -97,14 +97,14 @@ const FacultyDashboard = () => {
         }
     };
 
-    const filteredLeaves = leaves.filter(leave =>
+    const filteredLeaves = Array.isArray(leaves) ? leaves.filter(leave =>
         leave.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         leave.reason.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    ) : [];
 
-    const pendingCount = leaves.filter(l => l.status === 'pending').length;
-    const completedCount = leaves.filter(l => l.status !== 'pending').length;
-    const rejectedCount = leaves.filter(l => l.status === 'rejected').length;
+    const pendingCount = Array.isArray(leaves) ? leaves.filter(l => l.status === 'pending').length : 0;
+    const completedCount = Array.isArray(leaves) ? leaves.filter(l => l.status !== 'pending').length : 0;
+    const rejectedCount = Array.isArray(leaves) ? leaves.filter(l => l.status === 'rejected').length : 0;
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -169,7 +169,7 @@ const FacultyDashboard = () => {
                             </div>
                             <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-indigo-400 overflow-hidden ${!user?.profileImage ? 'bg-indigo-500' : 'bg-white'}`}>
                                 {user?.profileImage ? (
-                                    <img src={`http://localhost:5002${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                                    <img src={`${API_BASE_URL}${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     user?.name?.charAt(0).toUpperCase()
                                 )}
