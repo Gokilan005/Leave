@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "install-all": "npm install && npm install --prefix SmartLeaveSystem/backend && npm install --prefix SmartLeaveSystem/frontend",
+    "postinstall": "npm install --prefix SmartLeaveSystem/backend && npm install --prefix SmartLeaveSystem/frontend",
     "build": "npm run build --prefix SmartLeaveSystem/frontend",
-    "start": "npm run start --prefix SmartLeaveSystem/backend"
+    "start": "npm start --prefix SmartLeaveSystem/backend"
   }
 }

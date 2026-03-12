@@ -3,7 +3,21 @@ import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { io } from 'socket.io-client';
-import { Calendar, Clock, CheckCircle, XCircle, LogOut, Plus, User as UserIcon } from 'lucide-react';
+import {
+    FileText,
+    Clock,
+    CheckCircle,
+    XCircle,
+    AlertCircle,
+    Calendar,
+    Send,
+    User,
+    LogOut,
+    Plus,
+    X,
+    Bell
+} from 'lucide-react';
+import API_BASE_URL from '../config';
 import { Link } from 'react-router-dom';
 
 const StudentDashboard = () => {
@@ -16,7 +30,7 @@ const StudentDashboard = () => {
     useEffect(() => {
         fetchLeaves();
 
-        const socket = io('http://localhost:5002');
+        const socket = io(`${API_BASE_URL}`);
         socket.on('leaveStatusUpdated', (updatedLeave) => {
             if (updatedLeave.student._id === user._id || updatedLeave.student === user._id) {
                 setLeaves(prev => prev.map(l => l._id === updatedLeave._id ? updatedLeave : l));
@@ -29,7 +43,7 @@ const StudentDashboard = () => {
     const fetchLeaves = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.get('http://localhost:5002/api/leaves', {
+            const { data } = await axios.get(`${API_BASE_URL}/api/leaves/student`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLeaves(data);

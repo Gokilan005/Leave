@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { UserPlus, User, Mail, Lock, Phone, Briefcase, Hash, Calendar, Layers, ArrowLeft } from 'lucide-react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import API_BASE_URL from '../config';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ const Register = () => {
         setError('');
 
         try {
-            await axios.post('http://localhost:5002/api/auth/register', formData);
+            await axios.post(`${API_BASE_URL}/api/auth/register`, formData);
             navigate('/student-login');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');

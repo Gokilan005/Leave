@@ -1,7 +1,8 @@
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { LogOut, ArrowLeft, Mail, Phone, Building, Hash, ShieldCheck, User as UserIcon, Edit2, CheckCircle, XCircle, Camera, Calendar, Layers } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import API_BASE_URL from '../config';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
@@ -37,7 +38,7 @@ const Profile = () => {
     const handleSave = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.put('http://localhost:5002/api/auth/update', editForm, {
+            const { data } = await axios.put(`${API_BASE_URL}/api/auth/profile`, editForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUser(data);
@@ -66,7 +67,7 @@ const Profile = () => {
         setIsUploading(true);
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.post('http://localhost:5002/api/auth/upload-profile-picture', formData, {
+            const { data } = await axios.post(`${API_BASE_URL}/api/auth/profile-image`, formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'

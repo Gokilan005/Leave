@@ -3,7 +3,21 @@ import { AuthContext } from '../context/AuthContext';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { io } from 'socket.io-client';
-import { ShieldCheck, LogOut, Search, Clock, Check, CheckCircle, X, XCircle, Bell, User as UserIcon } from 'lucide-react';
+import {
+    FileText,
+    CheckCircle,
+    XCircle,
+    Clock,
+    AlertCircle,
+    User,
+    LogOut,
+    Calendar,
+    Search,
+    Filter,
+    ChevronRight,
+    Bell
+} from 'lucide-react';
+import API_BASE_URL from '../config';
 import { Link } from 'react-router-dom';
 
 const FacultyDashboard = () => {
@@ -17,7 +31,7 @@ const FacultyDashboard = () => {
     useEffect(() => {
         fetchLeaves();
 
-        const socket = io('http://localhost:5002');
+        const socket = io(API_BASE_URL);
 
         socket.on('newLeaveRequest', (newLeave) => {
             // Add notification
@@ -48,7 +62,7 @@ const FacultyDashboard = () => {
     const fetchLeaves = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.get('http://localhost:5002/api/leaves', {
+            const { data } = await axios.get(`${API_BASE_URL}/api/leaves/faculty`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Sort: Pending first, then by date descending
@@ -66,7 +80,7 @@ const FacultyDashboard = () => {
     const handleStatusUpdate = async (id, status) => {
         try {
             const token = Cookies.get('token');
-            await axios.put(`http://localhost:5002/api/leaves/${id}/status`, { status }, {
+            await axios.put(`${API_BASE_URL}/api/leaves/status/${id}`, { status }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Socket will update the UI automatically but we can also optimistically update
