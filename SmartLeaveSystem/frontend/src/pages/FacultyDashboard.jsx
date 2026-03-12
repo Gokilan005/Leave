@@ -65,6 +65,12 @@ const FacultyDashboard = () => {
             const { data } = await axios.get(`${API_BASE_URL}/api/leaves/faculty`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+            
+            if (!Array.isArray(data)) {
+                setLeaves([]);
+                return;
+            }
+
             // Sort: Pending first, then by date descending
             const sorted = data.sort((a, b) => {
                 if (a.status === 'pending' && b.status !== 'pending') return -1;

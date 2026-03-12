@@ -46,7 +46,7 @@ const StudentDashboard = () => {
             const { data } = await axios.get(`${API_BASE_URL}/api/leaves/student`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setLeaves(data);
+            setLeaves(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Error fetching leaves:', error);
         }
@@ -56,7 +56,7 @@ const StudentDashboard = () => {
         e.preventDefault();
         try {
             const token = Cookies.get('token');
-            await axios.post('http://localhost:5002/api/leaves', formData, {
+            await axios.post(`${API_BASE_URL}/api/leaves`, formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setShowApplyModal(false);
@@ -90,9 +90,9 @@ const StudentDashboard = () => {
         );
     };
 
-    const totalLeaves = leaves.length;
-    const approvedLeaves = leaves.filter(l => l.status === 'approved').length;
-    const rejectedLeaves = leaves.filter(l => l.status === 'rejected').length;
+    const totalLeaves = Array.isArray(leaves) ? leaves.length : 0;
+    const approvedLeaves = Array.isArray(leaves) ? leaves.filter(l => l.status === 'approved').length : 0;
+    const rejectedLeaves = Array.isArray(leaves) ? leaves.filter(l => l.status === 'rejected').length : 0;
 
     return (
         <div className="min-h-screen bg-slate-50">
@@ -115,7 +115,7 @@ const StudentDashboard = () => {
                         </div>
                             <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-blue-400 overflow-hidden ${!user?.profileImage ? 'bg-blue-500' : 'bg-white'}`}>
                                 {user?.profileImage ? (
-                                    <img src={`http://localhost:5002${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                                    <img src={`${API_BASE_URL}${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     user?.name?.charAt(0).toUpperCase()
                                 )}

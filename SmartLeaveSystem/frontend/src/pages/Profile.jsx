@@ -88,7 +88,7 @@ const Profile = () => {
         }
     };
 
-    const imageUrl = user?.profileImage ? `http://localhost:5002${user.profileImage}` : null;
+    const imageUrl = user?.profileImage ? `${API_BASE_URL}${user.profileImage}` : null;
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
