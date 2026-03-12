@@ -37,7 +37,7 @@ const Profile = () => {
     const handleSave = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.put('http://localhost:5001/api/auth/update', editForm, {
+            const { data } = await axios.put('http://localhost:5002/api/auth/update', editForm, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setUser(data);
@@ -66,7 +66,7 @@ const Profile = () => {
         setIsUploading(true);
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.post('http://localhost:5001/api/auth/upload-profile-picture', formData, {
+            const { data } = await axios.post('http://localhost:5002/api/auth/upload-profile-picture', formData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data'
@@ -87,7 +87,7 @@ const Profile = () => {
         }
     };
 
-    const imageUrl = user?.profileImage ? `http://localhost:5001${user.profileImage}` : null;
+    const imageUrl = user?.profileImage ? `http://localhost:5002${user.profileImage}` : null;
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">

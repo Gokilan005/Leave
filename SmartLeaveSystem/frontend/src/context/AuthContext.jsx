@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import API_BASE_URL from '../config';
 
 export const AuthContext = createContext();
 
@@ -16,7 +17,7 @@ export const AuthProvider = ({ children }) => {
                     const config = {
                         headers: { Authorization: `Bearer ${token}` }
                     };
-                    const { data } = await axios.get('http://localhost:5001/api/auth/me', config);
+                    const { data } = await axios.get(`${API_BASE_URL}/api/auth/me`, config);
                     // Token is valid, set user but keep the token from cookie
                     const userDataText = Cookies.get('user');
                     if (userDataText) {
@@ -39,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (email, password, allowedRoles = []) => {
         try {
-            const { data } = await axios.post('http://localhost:5001/api/auth/login', { email, password });
+            const { data } = await axios.post(`${API_BASE_URL}/api/auth/login`, { email, password });
             
             // Role validation
             if (allowedRoles.length > 0 && !allowedRoles.includes(data.role)) {

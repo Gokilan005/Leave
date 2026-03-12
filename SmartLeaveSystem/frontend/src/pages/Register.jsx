@@ -25,7 +25,7 @@ const Register = () => {
         setError('');
 
         try {
-            await axios.post('http://localhost:5001/api/auth/register', formData);
+            await axios.post('http://localhost:5002/api/auth/register', formData);
             navigate('/student-login');
         } catch (err) {
             setError(err.response?.data?.message || 'Registration failed');

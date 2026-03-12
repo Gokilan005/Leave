@@ -1,0 +1,9 @@
+node_modules/
+.env
+system_startup.log
+diag_out.txt
+*.log
+dist/
+build/
+.DS_Store
+Thumbs.db

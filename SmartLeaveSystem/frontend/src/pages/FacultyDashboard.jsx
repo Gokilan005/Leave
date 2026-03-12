@@ -17,7 +17,7 @@ const FacultyDashboard = () => {
     useEffect(() => {
         fetchLeaves();
 
-        const socket = io('http://localhost:5001');
+        const socket = io('http://localhost:5002');
 
         socket.on('newLeaveRequest', (newLeave) => {
             // Add notification
@@ -48,7 +48,7 @@ const FacultyDashboard = () => {
     const fetchLeaves = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.get('http://localhost:5001/api/leaves', {
+            const { data } = await axios.get('http://localhost:5002/api/leaves', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Sort: Pending first, then by date descending
@@ -66,7 +66,7 @@ const FacultyDashboard = () => {
     const handleStatusUpdate = async (id, status) => {
         try {
             const token = Cookies.get('token');
-            await axios.put(`http://localhost:5001/api/leaves/${id}/status`, { status }, {
+            await axios.put(`http://localhost:5002/api/leaves/${id}/status`, { status }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Socket will update the UI automatically but we can also optimistically update
@@ -149,7 +149,7 @@ const FacultyDashboard = () => {
                             </div>
                             <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-indigo-400 overflow-hidden ${!user?.profileImage ? 'bg-indigo-500' : 'bg-white'}`}>
                                 {user?.profileImage ? (
-                                    <img src={`http://localhost:5001${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                                    <img src={`http://localhost:5002${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     user?.name?.charAt(0).toUpperCase()
                                 )}

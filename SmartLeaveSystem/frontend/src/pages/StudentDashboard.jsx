@@ -16,7 +16,7 @@ const StudentDashboard = () => {
     useEffect(() => {
         fetchLeaves();
 
-        const socket = io('http://localhost:5001');
+        const socket = io('http://localhost:5002');
         socket.on('leaveStatusUpdated', (updatedLeave) => {
             if (updatedLeave.student._id === user._id || updatedLeave.student === user._id) {
                 setLeaves(prev => prev.map(l => l._id === updatedLeave._id ? updatedLeave : l));
@@ -29,7 +29,7 @@ const StudentDashboard = () => {
     const fetchLeaves = async () => {
         try {
             const token = Cookies.get('token');
-            const { data } = await axios.get('http://localhost:5001/api/leaves', {
+            const { data } = await axios.get('http://localhost:5002/api/leaves', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setLeaves(data);
@@ -42,7 +42,7 @@ const StudentDashboard = () => {
         e.preventDefault();
         try {
             const token = Cookies.get('token');
-            await axios.post('http://localhost:5001/api/leaves', formData, {
+            await axios.post('http://localhost:5002/api/leaves', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setShowApplyModal(false);
@@ -101,7 +101,7 @@ const StudentDashboard = () => {
                         </div>
                             <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-blue-400 overflow-hidden ${!user?.profileImage ? 'bg-blue-500' : 'bg-white'}`}>
                                 {user?.profileImage ? (
-                                    <img src={`http://localhost:5001${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
+                                    <img src={`http://localhost:5002${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
                                 ) : (
                                     user?.name?.charAt(0).toUpperCase()
                                 )}

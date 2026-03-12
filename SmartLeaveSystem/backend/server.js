@@ -48,6 +48,16 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use("/api/auth", authRoutes);
 app.use("/api/leaves", leaveRoutes);
 
+// Production: Serve frontend static files
+if (process.env.NODE_ENV === 'production') {
+  const frontendPath = path.join(__dirname, '../frontend/dist');
+  app.use(express.static(frontendPath));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(frontendPath, 'index.html'));
+  });
+}
+
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017/smartleave")
   .then(() => console.log("MongoDB connected successfully"))
