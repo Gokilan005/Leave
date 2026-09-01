@@ -70,51 +70,31 @@ async function resetDatabase() {
             phone: '+919876543210'
         });
 
-        // 6. Department-Specific HODs, Advisors & Sample Students
+        // 6. Department-Specific HODs, Advisors & Sample Students (for other departments)
         departments.forEach((dept, index) => {
+            if (dept === 'CSBS') return; // CSBS accounts created in steps 4 & 5
+
             const code = dept.toLowerCase().replace(/[^a-z0-9]/g, '');
             
             // HOD
-            if (dept !== 'CSBS') {
-                newUsers.push({
-                    name: `HOD ${dept}`,
-                    email: `hod.${code}@smartleave.com`,
-                    password: hashedPassword,
-                    role: 'hod',
-                    department: dept,
-                    phone: `+9190000000${(index + 1).toString().padStart(2, '0')}`
-                });
-            } else {
-                newUsers.push({
-                    name: `HOD CSBS`,
-                    email: `gokilanthangavel@gmail.com`,
-                    password: hashedPassword,
-                    role: 'hod',
-                    department: 'CSBS',
-                    phone: `+919000000001`
-                });
-            }
+            newUsers.push({
+                name: `HOD ${dept}`,
+                email: `hod.${code}@smartleave.com`,
+                password: hashedPassword,
+                role: 'hod',
+                department: dept,
+                phone: `+9190000000${(index + 1).toString().padStart(2, '0')}`
+            });
 
             // Advisor
-            if (dept !== 'CSBS') {
-                newUsers.push({
-                    name: `Advisor ${dept}`,
-                    email: `advisor.${code}@smartleave.com`,
-                    password: hashedPassword,
-                    role: 'advisor',
-                    department: dept,
-                    phone: `+9191000000${(index + 1).toString().padStart(2, '0')}`
-                });
-            } else {
-                newUsers.push({
-                    name: `Advisor CSBS`,
-                    email: `advisor.csbs@smartleave.com`,
-                    password: hashedPassword,
-                    role: 'advisor',
-                    department: 'CSBS',
-                    phone: `+919100000001`
-                });
-            }
+            newUsers.push({
+                name: `Advisor ${dept}`,
+                email: `advisor.${code}@smartleave.com`,
+                password: hashedPassword,
+                role: 'advisor',
+                department: dept,
+                phone: `+9191000000${(index + 1).toString().padStart(2, '0')}`
+            });
 
             // Sample Student for Dept
             newUsers.push({

@@ -8,7 +8,7 @@
     "dev:backend": "npm --prefix backend run dev",
     "dev:admin": "npm --prefix admin run dev",
     "dev:student": "npm --prefix student run dev",
-    "install:all": "npm install && npm --prefix backend install && npm --prefix admin install && npm --prefix student install",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix admin install && npm --prefix student install && npm --prefix frontend install",
     "seed": "node backend/reset_and_seed.js"
   },
   "devDependencies": {
