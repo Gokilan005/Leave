@@ -9,7 +9,7 @@ const generateToken = (id) => {
 };
 
 exports.registerUser = async (req, res) => {
-    const { name, email, password, role, department, rollNo, phone, section, year } = req.body;
+    const { name, email, password, role, department, phone } = req.body;
 
     try {
         const userExists = await User.findOne({ email });
@@ -25,11 +25,8 @@ exports.registerUser = async (req, res) => {
             name,
             email,
             password: hashedPassword,
-            role: 'student', // Force student role for registration
+            role,
             department,
-            rollNo,
-            section,
-            year,
             phone
         });
 
@@ -40,10 +37,6 @@ exports.registerUser = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 department: user.department,
-                rollNo: user.rollNo,
-                section: user.section,
-                year: user.year,
-                profileImage: user.profileImage,
                 token: generateToken(user.id),
             });
         } else {
@@ -67,10 +60,6 @@ exports.loginUser = async (req, res) => {
                 email: user.email,
                 role: user.role,
                 department: user.department,
-                rollNo: user.rollNo,
-                section: user.section,
-                year: user.year,
-                profileImage: user.profileImage,
                 token: generateToken(user.id),
             });
         } else {
@@ -86,7 +75,7 @@ exports.getMe = async (req, res) => {
 };
 
 exports.updateProfile = async (req, res) => {
-    const { name, phone, email, department, rollNo, section, year } = req.body;
+    const { name, phone, email, department } = req.body;
 
     try {
         const user = await User.findById(req.user.id);
@@ -106,9 +95,6 @@ exports.updateProfile = async (req, res) => {
         user.name = name || user.name;
         user.phone = phone || user.phone;
         user.department = department || user.department;
-        user.rollNo = rollNo || user.rollNo;
-        user.section = section || user.section;
-        user.year = year || user.year;
 
         const updatedUser = await user.save();
 
@@ -118,11 +104,7 @@ exports.updateProfile = async (req, res) => {
             email: updatedUser.email,
             role: updatedUser.role,
             department: updatedUser.department,
-            rollNo: updatedUser.rollNo,
-            section: updatedUser.section,
-            year: updatedUser.year,
             phone: updatedUser.phone,
-            profileImage: updatedUser.profileImage,
             token: generateToken(updatedUser._id),
         });
     } catch (error) {
@@ -130,50 +112,28 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
-exports.uploadProfilePicture = async (req, res) => {
+const notificationService = require('../services/notificationService');
+
+exports.sendTestEmail = async (req, res) => {
+    const targetEmail = req.body.email || req.query.email || process.env.EMAIL_USER;
     try {
-        if (!req.file) {
-            return res.status(400).json({ message: 'Please upload a file' });
-        }
+        const result = await notificationService.sendEmail(
+            targetEmail,
+            'Smart Leave System - SMTP Verification Test',
+            `Hello! This is a test email sent from the Smart Leave Notification System to verify that SMTP email delivery is operational.\n\nTime: ${new Date().toISOString()}`
+        );
 
-        const imagePath = `/uploads/profiles/${req.file.filename}`;
-        
-        const User = require('../models/User'); // Required since User might be imported at top
-        const user = await User.findById(req.user.id);
-        
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        if (result && result.error) {
+            return res.status(500).json({ success: false, message: result.error });
         }
-
-        user.profileImage = imagePath;
-        const updatedUser = await user.save();
-        
-        // Also import jsonwebtoken at the top, generateToken is likely available above.
-        const jwt = require('jsonwebtoken');
-        const generateToken = (id) => {
-            return jwt.sign({ id }, process.env.JWT_SECRET || 'supersecretjwtkey_smartleave', {
-                expiresIn: '30d',
-            });
-        };
 
         res.json({
-            message: 'Profile picture updated successfully',
-            profileImage: updatedUser.profileImage,
-            user: {
-                _id: updatedUser._id,
-                name: updatedUser.name,
-                email: updatedUser.email,
-                role: updatedUser.role,
-                department: updatedUser.department,
-                rollNo: updatedUser.rollNo,
-                section: updatedUser.section,
-                year: updatedUser.year,
-                phone: updatedUser.phone,
-                profileImage: updatedUser.profileImage,
-                token: generateToken(updatedUser._id) // Added token just in case
-            }
+            success: true,
+            message: `Test email successfully dispatched to ${targetEmail}`,
+            messageId: result?.messageId
         });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(500).json({ success: false, message: error.message });
     }
 };
+

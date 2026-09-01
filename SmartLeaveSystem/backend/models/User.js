@@ -10,11 +10,7 @@ const UserSchema = new mongoose.Schema({
         default: 'student'
     },
     department: { type: String, required: true },
-    rollNo: { type: String },
-    section: { type: String },
-    year: { type: String },
-    phone: { type: String },
-    profileImage: { type: String, default: '' }
+    phone: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', UserSchema);

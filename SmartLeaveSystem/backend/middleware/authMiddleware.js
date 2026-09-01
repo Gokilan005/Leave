@@ -8,13 +8,9 @@ exports.protect = async (req, res, next) => {
             token = req.headers.authorization.split(' ')[1];
             const decoded = jwt.verify(token, process.env.JWT_SECRET || 'supersecretjwtkey_smartleave');
             req.user = await User.findById(decoded.id).select('-password');
-            if (!req.user) {
-                console.log("No user found for token");
-                return res.status(401).json({ message: 'Not authorized, user not found' });
-            }
             next();
         } catch (error) {
-            console.error("Auth Middleware Error:", error);
+            console.error(error);
             res.status(401).json({ message: 'Not authorized, token failed' });
         }
     }

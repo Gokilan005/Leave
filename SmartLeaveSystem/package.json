@@ -1,0 +1,17 @@
+{
+  "name": "smartleave-system",
+  "version": "1.0.0",
+  "description": "Smart Leave Notification System - Monorepo root",
+  "scripts": {
+    "dev": "concurrently -n \"BACKEND,ADMIN,STUDENT\" -c \"blue.bold,green.bold,magenta.bold\" \"npm --prefix backend run dev\" \"npm --prefix admin run dev\" \"npm --prefix student run dev\"",
+    "start": "concurrently -n \"BACKEND,ADMIN,STUDENT\" -c \"blue.bold,green.bold,magenta.bold\" \"npm --prefix backend start\" \"npm --prefix admin run dev\" \"npm --prefix student run dev\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:admin": "npm --prefix admin run dev",
+    "dev:student": "npm --prefix student run dev",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix admin install && npm --prefix student install",
+    "seed": "node backend/reset_and_seed.js"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

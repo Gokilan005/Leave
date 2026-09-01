@@ -27,10 +27,23 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Verify email service connectivity on initialization
+if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+    transporter.verify((error, success) => {
+        if (error) {
+            console.error("❌ [EMAIL ERROR] SMTP verification failed:", error.message);
+        } else {
+            console.log(`✅ [EMAIL READY] Connected to Gmail SMTP as: ${process.env.EMAIL_USER}`);
+        }
+    });
+} else {
+    console.warn("⚠️ [EMAIL WARNING] EMAIL_USER or EMAIL_PASS not set. Emails will be logged as MOCK.");
+}
+
 exports.sendEmail = async (to, subject, text, html = undefined) => {
     if (!process.env.EMAIL_USER || process.env.EMAIL_USER === "your_email@gmail.com") {
         console.log(`[MOCK EMAIL] To: ${to} | Subject: ${subject} | Text: ${text}`);
-        return;
+        return { mock: true };
     }
 
     try {
@@ -45,10 +58,13 @@ exports.sendEmail = async (to, subject, text, html = undefined) => {
             mailOptions.html = html;
         }
 
+        console.log(`📨 [SMTP] Sending email to: ${to} | Subject: "${subject}"...`);
         const info = await transporter.sendMail(mailOptions);
-        console.log("Email sent: %s", info.messageId);
+        console.log(`✅ [SMTP SUCCESS] Email delivered to ${to} (ID: ${info.messageId})`);
+        return info;
     } catch (error) {
-        console.error("Error sending email:", error);
+        console.error(`❌ [SMTP ERROR] Failed to send email to ${to}:`, error.message);
+        return { error: error.message }; 
     }
 };
 

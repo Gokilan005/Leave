@@ -3,13 +3,11 @@ const notificationService = require('./services/notificationService');
 
 const mockHtml = `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-    <div style="background-color: #10b981; padding: 35px 25px; text-align: center;">
-        <div style="margin: 0 auto 15px; width: 64px; height: 64px; background-color: #ffffff; border-radius: 50%; display: table;">
-            <div style="display: table-cell; vertical-align: middle; text-align: center; color: #10b981; font-size: 38px; font-weight: bold; font-family: Arial, sans-serif; padding-top: 4px;">
-                ✔
-            </div>
+    <div style="background-color: #10b981; padding: 25px; text-align: center;">
+        <div style="background-color: white; color: #10b981; width: 50px; height: 50px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; margin-bottom: 15px;">
+            ✓
         </div>
-        <h2 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Leave Request Approved</h2>
+        <h2 style="color: #ffffff; margin: 0; font-size: 24px;">Leave Request Approved</h2>
     </div>
     <div style="padding: 30px; background-color: #ffffff;">
         <p style="color: #475569; font-size: 16px; line-height: 1.5;">Hello Test Student,</p>

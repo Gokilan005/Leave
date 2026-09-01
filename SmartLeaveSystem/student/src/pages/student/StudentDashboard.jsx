@@ -1,36 +1,24 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { io } from 'socket.io-client';
-import {
-    FileText,
-    Clock,
-    CheckCircle,
-    XCircle,
-    AlertCircle,
-    Calendar,
-    Send,
-    User as UserIcon,
-    LogOut,
-    Plus,
-    X,
-    Bell
-} from 'lucide-react';
-import API_BASE_URL from '../config';
+import { Calendar, Clock, CheckCircle, XCircle, LogOut, Plus, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const StudentDashboard = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout, token: ctxToken } = useContext(AuthContext);
     const [leaves, setLeaves] = useState([]);
     const [showApplyModal, setShowApplyModal] = useState(false);
     const [formData, setFormData] = useState({ date: '', endDate: '', reason: '' });
     const [showProfileMenu, setShowProfileMenu] = useState(false);
 
+    const getAuthToken = () => ctxToken || Cookies.get('student_token') || localStorage.getItem('student_token') || Cookies.get('token');
+
     useEffect(() => {
         fetchLeaves();
 
-        const socket = io(`${API_BASE_URL}`);
+        const socket = io('http://localhost:5001');
         socket.on('leaveStatusUpdated', (updatedLeave) => {
             if (updatedLeave.student._id === user._id || updatedLeave.student === user._id) {
                 setLeaves(prev => prev.map(l => l._id === updatedLeave._id ? updatedLeave : l));
@@ -42,11 +30,11 @@ const StudentDashboard = () => {
 
     const fetchLeaves = async () => {
         try {
-            const token = Cookies.get('token');
-            const { data } = await axios.get(`${API_BASE_URL}/api/leaves`, {
+            const token = getAuthToken();
+            const { data } = await axios.get('http://localhost:5001/api/leaves', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            setLeaves(Array.isArray(data) ? data : []);
+            setLeaves(data);
         } catch (error) {
             console.error('Error fetching leaves:', error);
         }
@@ -55,8 +43,8 @@ const StudentDashboard = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const token = Cookies.get('token');
-            await axios.post(`${API_BASE_URL}/api/leaves`, formData, {
+            const token = getAuthToken();
+            await axios.post('http://localhost:5001/api/leaves', formData, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setShowApplyModal(false);
@@ -90,10 +78,6 @@ const StudentDashboard = () => {
         );
     };
 
-    const totalLeaves = Array.isArray(leaves) ? leaves.length : 0;
-    const approvedLeaves = Array.isArray(leaves) ? leaves.filter(l => l.status === 'approved').length : 0;
-    const rejectedLeaves = Array.isArray(leaves) ? leaves.filter(l => l.status === 'rejected').length : 0;
-
     return (
         <div className="min-h-screen bg-slate-50">
             {/* Navbar */}
@@ -113,13 +97,9 @@ const StudentDashboard = () => {
                             <p className="text-sm font-semibold text-slate-800">{user?.name}</p>
                             <p className="text-xs text-slate-500 uppercase">{user?.department}</p>
                         </div>
-                            <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-blue-400 overflow-hidden ${!user?.profileImage ? 'bg-blue-500' : 'bg-white'}`}>
-                                {user?.profileImage ? (
-                                    <img src={`${API_BASE_URL}${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    user?.name?.charAt(0).toUpperCase()
-                                )}
-                            </div>
+                        <div className="w-9 h-9 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-white">
+                            {user?.name?.charAt(0).toUpperCase()}
+                        </div>
                     </button>
 
                     {showProfileMenu && (
@@ -146,40 +126,7 @@ const StudentDashboard = () => {
             </nav>
 
             <main className="max-w-5xl mx-auto p-6">
-                {/* Header Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 mt-2">
-                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-slate-500">Total Applications</p>
-                            <p className="text-3xl font-bold text-slate-800 mt-1">{totalLeaves}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
-                            <Calendar className="w-6 h-6 text-blue-500" />
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-slate-500">Approved Requests</p>
-                            <p className="text-3xl font-bold text-slate-800 mt-1">{approvedLeaves}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
-                            <CheckCircle className="w-6 h-6 text-emerald-500" />
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-slate-500">Rejected Requests</p>
-                            <p className="text-3xl font-bold text-slate-800 mt-1">{rejectedLeaves}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center">
-                            <XCircle className="w-6 h-6 text-rose-500" />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex justify-between items-end mb-8 pt-4 border-t border-slate-200">
+                <div className="flex justify-between items-end mb-8">
                     <div>
                         <h2 className="text-2xl font-bold text-slate-800 mb-1">My Leave Requests</h2>
                         <p className="text-slate-500 text-sm">Track the status of your applications</p>

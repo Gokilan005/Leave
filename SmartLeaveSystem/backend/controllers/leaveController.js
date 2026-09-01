@@ -62,13 +62,14 @@ exports.applyLeave = async (req, res) => {
                 </div>
             </div>`;
 
-            // Email
+            // Send notifications to faculty (Background)
+            console.log(`[LOG] Starting background notifications for faculty: ${faculty.email}`);
             notificationService.sendEmail(
                 faculty.email,
                 'New Leave Request Notification',
                 `Student: ${req.user.name}\nDepartment: ${req.user.department}\nDate: ${dateStr}\nReason: ${reason}`,
                 appliedHtml
-            );
+            ).catch(err => console.error(`[LOG ERROR] Background faculty email failed for ${faculty.email}:`, err));
 
             // SMS
             if (faculty.phone) {
@@ -92,8 +93,10 @@ exports.applyLeave = async (req, res) => {
         const io = req.app.get('io');
         io.emit('newLeaveRequest', populatedLeave);
 
+        console.log(`[LOG] applyLeave successful for student: ${req.user.name}. Sending response.`);
         res.status(201).json(populatedLeave);
     } catch (error) {
+        console.error(`[LOG ERROR] applyLeave failed:`, error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -136,42 +139,30 @@ exports.updateLeaveStatus = async (req, res) => {
     }
 
     try {
-        console.log("Updating status:", status, "for leave:", req.params.id);
         const leave = await LeaveRequest.findById(req.params.id).populate('student', 'name email phone');
 
         if (!leave) {
-            console.log("Leave not found");
             return res.status(404).json({ message: 'Leave not found' });
         }
 
-        if (!leave.student) {
-            console.log("Student not found for leave");
-            return res.status(404).json({ message: 'Student associated with this leave was not found' });
-        }
-
-        console.log("Proceeding with status update...");
         leave.status = status;
         leave.approvedBy = req.user.id;
         await leave.save();
-        console.log("Leave saved successfully");
 
         const dateStr = (!leave.endDate || leave.date === leave.endDate) ? leave.date : `${leave.date} to ${leave.endDate}`;
 
         const isApproved = status === 'approved';
-        const statusColor = isApproved ? '#10b981' : '#ef4444';
-        const statusIcon = isApproved ? '✔' : '✖';
+        const statusColor = isApproved ? '#10b981' : '#ef4444'; // Emerald for approved, Rose for rejected
+        const statusIcon = isApproved ? '✓' : '✗';
         const formattedStatus = status.charAt(0).toUpperCase() + status.slice(1);
 
-        console.log("Generating email HTML...");
         const statusHtml = `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
-            <div style="background-color: ${statusColor}; padding: 35px 25px; text-align: center;">
-                <div style="margin: 0 auto 15px; width: 64px; height: 64px; background-color: #ffffff; border-radius: 50%; display: table;">
-                    <div style="display: table-cell; vertical-align: middle; text-align: center; color: ${statusColor}; font-size: 38px; font-weight: bold; font-family: Arial, sans-serif; padding-top: 4px;">
-                        ${statusIcon}
-                    </div>
+            <div style="background-color: ${statusColor}; padding: 25px; text-align: center;">
+                <div style="background-color: white; color: ${statusColor}; width: 50px; height: 50px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 30px; font-weight: bold; margin-bottom: 15px;">
+                    ${statusIcon}
                 </div>
-                <h2 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">Leave Request ${formattedStatus}</h2>
+                <h2 style="color: #ffffff; margin: 0; font-size: 24px;">Leave Request ${formattedStatus}</h2>
             </div>
             <div style="padding: 30px; background-color: #ffffff;">
                 <p style="color: #475569; font-size: 16px; line-height: 1.5;">Hello ${leave.student.name},</p>
@@ -207,38 +198,32 @@ exports.updateLeaveStatus = async (req, res) => {
             </div>
         </div>`;
 
-        console.log("Sending notifications...");
-        // Notify Student
-        if (leave.student && leave.student.email) {
-            notificationService.sendEmail(
-                leave.student.email,
-                `Leave Request ${formattedStatus}`,
-                `Your leave request for ${dateStr} has been ${status}.`,
-                statusHtml
-            );
-        }
+        // Notify Student (Background)
+        console.log(`[LOG] Starting background notification for student: ${leave.student.email}`);
+        notificationService.sendEmail(
+            leave.student.email,
+            `Leave Request ${formattedStatus}`,
+            `Your leave request for ${dateStr} has been ${status}.`,
+            statusHtml
+        ).catch(err => console.error(`[LOG ERROR] Background student email failed:`, err));
 
-        if (leave.student && leave.student.phone) {
+        if (leave.student.phone) {
             notificationService.sendSMS(
                 leave.student.phone,
                 `Leave Alert: Your leave for ${dateStr} is ${status}.`
             );
         }
 
-        console.log("Populating approvedBy...");
         await leave.populate('approvedBy', 'name role');
 
         // Real-time update
-        console.log("Emitting socket event...");
         const io = req.app.get('io');
-        if (io) {
-            io.emit('leaveStatusUpdated', leave);
-        }
+        io.emit('leaveStatusUpdated', leave);
 
-        console.log("Sending final response");
+        console.log(`[LOG] updateLeaveStatus successful. Status: ${status}. Sending response.`);
         res.status(200).json(leave);
     } catch (error) {
-        console.error("Error in updateLeaveStatus:", error);
+        console.error(`[LOG ERROR] updateLeaveStatus failed:`, error);
         res.status(500).json({ message: error.message });
     }
 };

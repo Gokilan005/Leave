@@ -1,40 +1,26 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { io } from 'socket.io-client';
-import {
-    FileText,
-    CheckCircle,
-    XCircle,
-    Clock,
-    AlertCircle,
-    User as UserIcon,
-    LogOut,
-    Calendar,
-    Search,
-    Filter,
-    ChevronRight,
-    Bell,
-    ShieldCheck,
-    Check,
-    X
-} from 'lucide-react';
-import API_BASE_URL from '../config';
+import { ShieldCheck, LogOut, Search, Clock, Check, X, Bell, User as UserIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const FacultyDashboard = () => {
-    const { user, logout } = useContext(AuthContext);
+    const { user, logout, token: ctxToken } = useContext(AuthContext);
     const [leaves, setLeaves] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedDept, setSelectedDept] = useState('all');
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
 
+    const getAuthToken = () => ctxToken || Cookies.get('admin_token') || localStorage.getItem('admin_token') || Cookies.get('token');
+
     useEffect(() => {
         fetchLeaves();
 
-        const socket = io(API_BASE_URL);
+        const socket = io('http://localhost:5001');
 
         socket.on('newLeaveRequest', (newLeave) => {
             // Add notification
@@ -64,16 +50,10 @@ const FacultyDashboard = () => {
 
     const fetchLeaves = async () => {
         try {
-            const token = Cookies.get('token');
-            const { data } = await axios.get(`${API_BASE_URL}/api/leaves`, {
+            const token = getAuthToken();
+            const { data } = await axios.get('http://localhost:5001/api/leaves', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-            
-            if (!Array.isArray(data)) {
-                setLeaves([]);
-                return;
-            }
-
             // Sort: Pending first, then by date descending
             const sorted = data.sort((a, b) => {
                 if (a.status === 'pending' && b.status !== 'pending') return -1;
@@ -88,8 +68,8 @@ const FacultyDashboard = () => {
 
     const handleStatusUpdate = async (id, status) => {
         try {
-            const token = Cookies.get('token');
-            await axios.put(`${API_BASE_URL}/api/leaves/${id}/status`, { status }, {
+            const token = getAuthToken();
+            await axios.put(`http://localhost:5001/api/leaves/${id}/status`, { status }, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             // Socket will update the UI automatically but we can also optimistically update
@@ -100,14 +80,12 @@ const FacultyDashboard = () => {
         }
     };
 
-    const filteredLeaves = Array.isArray(leaves) ? leaves.filter(leave =>
+    const filteredLeaves = leaves.filter(leave =>
         leave.student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         leave.reason.toLowerCase().includes(searchTerm.toLowerCase())
-    ) : [];
+    );
 
-    const pendingCount = Array.isArray(leaves) ? leaves.filter(l => l.status === 'pending').length : 0;
-    const completedCount = Array.isArray(leaves) ? leaves.filter(l => l.status !== 'pending').length : 0;
-    const rejectedCount = Array.isArray(leaves) ? leaves.filter(l => l.status === 'rejected').length : 0;
+    const pendingCount = leaves.filter(l => l.status === 'pending').length;
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col">
@@ -118,9 +96,7 @@ const FacultyDashboard = () => {
                         <ShieldCheck className="w-6 h-6 text-indigo-300" />
                     </div>
                     <div>
-                        <h1 className="text-xl font-bold tracking-wide">
-                            {user?.role === 'hod' ? 'HOD Portal' : user?.role === 'advisor' ? 'Advisor Portal' : 'Faculty Portal'}
-                        </h1>
+                        <h1 className="text-xl font-bold tracking-wide">Faculty Portal</h1>
                         <p className="text-xs text-indigo-300 font-medium tracking-wider uppercase">{user?.department} Department</p>
                     </div>
                 </div>
@@ -170,12 +146,8 @@ const FacultyDashboard = () => {
                                 <p className="font-medium text-sm text-white">{user?.name}</p>
                                 <p className="text-xs text-indigo-300 uppercase leading-tight tracking-wider">{user?.role}</p>
                             </div>
-                            <div className={`w-9 h-9 rounded-full text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-indigo-400 overflow-hidden ${!user?.profileImage ? 'bg-indigo-500' : 'bg-white'}`}>
-                                {user?.profileImage ? (
-                                    <img src={`${API_BASE_URL}${user.profileImage}`} alt="Profile" className="w-full h-full object-cover" />
-                                ) : (
-                                    user?.name?.charAt(0).toUpperCase()
-                                )}
+                            <div className="w-9 h-9 rounded-full bg-indigo-500 text-white flex items-center justify-center font-bold text-sm shadow-sm ring-2 ring-indigo-400">
+                                {user?.name?.charAt(0).toUpperCase()}
                             </div>
                         </button>
 
@@ -216,39 +188,18 @@ const FacultyDashboard = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-slate-500">Completed Approvals</p>
-                            <p className="text-3xl font-bold text-slate-800 mt-1">{completedCount}</p>
+                    <div className="md:col-span-2 relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <Search className="h-5 w-5 text-slate-400" />
                         </div>
-                        <div className="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center">
-                            <CheckCircle className="w-6 h-6 text-emerald-500" />
-                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search by student name or reason..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full h-full min-h-[5rem] pl-10 pr-4 rounded-xl border-none outline-none shadow-sm text-slate-700 bg-white ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
+                        />
                     </div>
-
-                    <div className="bg-white rounded-xl p-5 border border-slate-200 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p className="text-sm font-medium text-slate-500">Rejected Approvals</p>
-                            <p className="text-3xl font-bold text-slate-800 mt-1">{rejectedCount}</p>
-                        </div>
-                        <div className="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center">
-                            <XCircle className="w-6 h-6 text-rose-500" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Search Bar */}
-                <div className="mb-8 relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-slate-400" />
-                    </div>
-                    <input
-                        type="text"
-                        placeholder="Search by student name or reason..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="w-full h-full min-h-[4rem] pl-10 pr-4 rounded-xl border-none outline-none shadow-sm text-slate-700 bg-white ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 transition-shadow"
-                    />
                 </div>
 
                 {/* Requests List */}
